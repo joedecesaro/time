@@ -20,7 +20,8 @@ if (!require(librarian)){
   library(librarian)
 }
 librarian::shelf(
-  clockify, dplyr, DT, glue, lubridate, readr)
+  bbest/clockify, dplyr, DT, glue, lubridate, readr, 
+  quiet = TRUE)
 
 # CHANGE THESE VARIABLES!
 api_txt <- "~/Documents/Bren/Fall/EDS211/clockify_api.txt"
@@ -32,23 +33,111 @@ CLOCKIFY_API_KEY <- readLines(api_txt)
 set_api_key(CLOCKIFY_API_KEY)
 
 # get data
-d_projects <- projects() %>% 
-      select(project_id, project_name)
-d_users <- users() %>% 
-      select(user_id, user_name)
-d_times <- time_entries(concise = F) %>% 
-  left_join(
-    d_projects, by = "project_id") %>% 
-  left_join(
-    d_users, by = "user_id")
-
-# show table
-d_times %>% 
+d_times <- time_entries_all()
+# table(d_times$project_name) # confirm project_name
+d_times <- d_times %>%
+  filter(
+    project_name == !!project_name) %>%
   select(
-    user_name, project_name, 
-    time_start, duration, description) %>% 
-  arrange(user_name, project_name, time_start) %>% 
-  datatable() %>%
-  formatRound(columns=c('duration'), digits=3)
+    task_name, time_start, duration_hrs, 
+    user_name, description) %>% 
+  arrange(task_name, time_start)
+```
+## nex_dcp30_intro {.tabset}
+### Overall
+```{r}
+# plot ALL
+plot_burndown(
+  d_times,
+  beg = as.Date("2021-10-18"), # day before
+  end = as.Date("2021-11-21"), # day after
+  hrs = 37)
+
+# table ALL
+datatable(d_times)
+```
+
+### 1. Exploration
+```{r}
+task <- "Exploration"
+d_task <- d_times %>% 
+  filter(task_name == !!task)
+plot_burndown(
+  d_task,
+  beg = as.Date("2021-10-18"), # day before
+  end = as.Date("2021-11-01"), # day after
+  hrs = 3)
+
+datatable(d_task)
+```
+
+### 2. Download and Cleaning of Data
+```{r}
+task <- "Download and cleaning of data"
+d_task <- d_times %>% 
+  filter(task_name == !!task)
+plot_burndown(
+  d_task,
+  beg = as.Date("2021-10-18"), # day before
+  end = as.Date("2021-11-22"), # day after
+  hrs = 4)
+
+datatable(d_task)
+```
+
+### 3. Data Visualization
+```{r}
+task <- "Data Visualization"
+d_task <- d_times %>% 
+  filter(task_name == !!task)
+plot_burndown(
+  d_task,
+  beg = as.Date("2021-10-31"), # day before
+  end = as.Date("2021-11-22"), # day after
+  hrs = 8)
+
+datatable(d_task)
+```
+
+### 4. Data Analysis
+```{r}
+task <- "Data Analysis"
+d_task <- d_times %>% 
+  filter(task_name == !!task)
+plot_burndown(
+  d_task,
+  beg = as.Date("2021-11-07"), # day before
+  end = as.Date("2021-11-29"), # day after
+  hrs = 12)
+
+datatable(d_task)
+```
+
+### 5. Data Applications
+```{r}
+task <- "Data Applications"
+d_task <- d_times %>% 
+  filter(task_name == !!task)
+plot_burndown(
+  d_task,
+  beg = as.Date("2021-11-07"), # day before
+  end = as.Date("2021-11-23"), # day after
+  hrs = 4)
+
+datatable(d_task)
+```
+
+### 6. Tutorial
+```{r}
+task <- "Data Applications"
+d_task <- d_times %>% 
+  filter(task_name == !!task)
+plot_burndown(
+  d_task,
+  beg = as.Date("2021-11-07"), # day before
+  end = as.Date("2021-11-21"), # day after
+  hrs = 6)
+
+datatable(d_task)
 ```
 
